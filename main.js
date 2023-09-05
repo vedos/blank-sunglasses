@@ -17,14 +17,89 @@ console.log("%cDOM fully loaded and parsed",  'color: blue');
 function initApp(){
 	setOfferProduct();
 	makeScrolableShop();
+}
+
+function makeScrolableShop(){
+	//get products
+	//check page number in pagination
+	let currentPage = 1;
+	console.log("currentPage reseted", currentPage);
 	
-	//find safer way for sort detection
+	var paginationNav = document.getElementsByClassName("Pagination__Nav")[0];
+	if(paginationNav != null){
+		paginationNav.style.display = "none";
+	
+	let pageSize = parseInt(paginationNav.lastChild.previousSibling.innerHTML);
+		
+	//dynamically adding url for new products 
+	currentPage++;
+
+	//sort changed
 	var sort = document.getElementsByClassName("Popover__ValueList")[1];
 	sort.childNodes.forEach((button) => {
-		button.addEventListener('click', function(){
-			makeScrolableShop();
-		})	
+			button.addEventListener('click', function(){
+				currentPage = 1;
+				console.log("sort clicked")
+			})	
 	});
+		
+	var collectionInnnerScroll = document.getElementsByClassName("CollectionInner__Products")[0];
+	document.addEventListener('scroll', function (event) {
+		throttle(() => {
+		//scroll after past half products
+		console.log(currentPage, window.scrollY,collectionInnnerScroll.offsetHeight, document.body.offsetHeight, window.innerHeight , window.pageYOffset )
+		//remove pagination        				
+		var paginationNav2 = document.getElementsByClassName("Pagination__Nav")[0];
+        paginationNav2.style.display = "none";
+
+		if(window.scrollY  >= collectionInnnerScroll.offsetHeight/2)
+		{
+        	//call more products
+        	if(currentPage <= pageSize){
+        		let urlNew = paginationNav2.firstChild.nextSibling.href;
+				
+        		//dynamically adding url for new products 
+				urlNew = replaceUrlParam(urlNew, "page", currentPage);
+				
+        		console.log("scroll bottom", currentPage, pageSize,urlNew);
+				addMoreProductsToGrid(urlNew);
+			
+				currentPage++;
+        	}
+        }
+	}, 1000);
+	});
+	}
+}
+
+
+function parseHTML(html) {
+    var t = document.createElement('template');
+    t.innerHTML = html;
+    return t.content;
+}
+
+var throttleTimer;
+const throttle = (callback, time) => {
+  if (throttleTimer) return;
+  throttleTimer = true;
+  setTimeout(() => {
+    callback();
+    throttleTimer = false;
+  }, time);
+};
+
+function replaceUrlParam(url, paramName, paramValue)
+{
+    if (paramValue == null) {
+        paramValue = '';
+    }
+    var pattern = new RegExp('\\b('+paramName+'=).*?(&|#|$)');
+    if (url.search(pattern)>=0) {
+        return url.replace(pattern,'$1' + paramValue + '$2');
+    }
+    url = url.replace(/[?#]$/,'');
+    return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
 }
 
 const loadMoreProducts = (url) =>
@@ -41,64 +116,6 @@ const loadMoreProducts = (url) =>
     };
     httpReq.send();
   });
-}
-
-
-function parseHTML(html) {
-    var t = document.createElement('template');
-    t.innerHTML = html;
-    return t.content;
-}
-
-function makeScrolableShop(){
-	//get products
-	//check page number in pagination
-	let currentPage = 1;
-		//Pagination__Nav
-	var paginationNav = document.getElementsByClassName("Pagination__Nav")[0];
-	if(paginationNav != null){
-		paginationNav.style.display = "none";
-	
-	let pageSize = parseInt(paginationNav.lastChild.previousSibling.innerHTML);
-	
-	//dynamically adding url for new products 
-	let urlCollection = paginationNav.childNodes[currentPage].href;
-	currentPage++;
-	
-	var collectionInnnerScroll = document.getElementsByClassName("CollectionInner__Products")[0];
-	document.addEventListener('scroll', function (event) {
-		//scroll after past half products
-		if(window.scrollY >= collectionInnnerScroll.offsetHeight/1.5 && window.scrollY < collectionInnnerScroll.offsetHeight)
-		{
-			
-        	//call more products
-        	if(currentPage <= pageSize){
-        		//remove pagination added here it was buggy
-        		document.getElementsByClassName("Pagination__Nav")[0].style.display = "none";
-        		
-        		console.log("scroll bottom", currentPage, pageSize,urlCollection);
-				addMoreProductsToGrid(urlCollection);
-				
-				currentPage++;   
-				//replace every next page
-				urlCollection = replaceUrlParam(urlCollection, "page", currentPage);
-        	}
-        }
-	});
-	}
-}  
-
-function replaceUrlParam(url, paramName, paramValue)
-{
-    if (paramValue == null) {
-        paramValue = '';
-    }
-    var pattern = new RegExp('\\b('+paramName+'=).*?(&|#|$)');
-    if (url.search(pattern)>=0) {
-        return url.replace(pattern,'$1' + paramValue + '$2');
-    }
-    url = url.replace(/[?#]$/,'');
-    return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
 }
 
 function addMoreProductsToGrid(urlCollection){
@@ -296,6 +313,3 @@ function createFragment(htmlStr) {
     }
     return frag;
 }
-
-
-
