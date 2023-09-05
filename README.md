@@ -2,6 +2,7 @@
 Modifed https://blank-sunglasses.com/ site with vanila.js
 
 //Notes
+
 /*
 *TASK 1 
 * observes cart with MutationObserver and show popular product based
