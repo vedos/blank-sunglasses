@@ -1,0 +1,26 @@
+.MostPopularItem__Info {
+  padding-left: 0px;
+}
+
+.MostPopular_Button {
+	padding: 10px 14px !important; 
+}
+
+.MostPopular_Quantity {
+	padding: 6px 14px 6px !important;
+}
+
+//Notes
+/*
+*TASK 1 
+* observes cart with MutationObserver and show popular product based
+* changes thumbnails on selecting variants
+** I would definitely use all my Css class for offer product but I used Cart_Item to save time
+* there is some minor bugs like opens cart on add of item
+
+*TASK 2
+
+* works as expected some thing coulde be done little better
+* like detecting sorting maybe with url change or
+* somehting else if i had time to investigate site more
+*/
