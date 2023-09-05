@@ -16,3 +16,10 @@ Modifed https://blank-sunglasses.com/ site with vanila.js
 * like detecting sorting maybe with url change or
 * somehting else if i had time to investigate more
 */
+
+User JavaScript and CSS
+https://chrome.google.com/webstore/detail/user-javascript-and-css/nbhcbdghjpllgmfilhnhkllmkecfmpld
+
+Check main.js for JavaScript and blank.css for CSS
+
+
