@@ -22,7 +22,7 @@ function initApp(){
 function makeScrolableShop(){
 	//get products
 	//check page number in pagination
-	let currentPage = 1;
+	let currentPage = 2;
 	console.log("currentPage reseted", currentPage);
 	
 	var paginationNav = document.getElementsByClassName("Pagination__Nav")[0];
@@ -31,17 +31,18 @@ function makeScrolableShop(){
 	
 	let pageSize = parseInt(paginationNav.lastChild.previousSibling.innerHTML);
 		
-	//dynamically adding url for new products 
-	currentPage++;
+
 
 	//sort changed
 	var sort = document.getElementsByClassName("Popover__ValueList")[1];
 	sort.childNodes.forEach((button) => {
 			button.addEventListener('click', function(){
-				currentPage = 1;
+				currentPage = 2;
 				console.log("sort clicked")
 			})	
 	});
+	
+	//dynamically adding url for new products 
 		
 	var collectionInnnerScroll = document.getElementsByClassName("CollectionInner__Products")[0];
 	document.addEventListener('scroll', function (event) {
