@@ -43,6 +43,7 @@ const loadMoreProducts = (url) =>
   });
 }
 
+
 function parseHTML(html) {
     var t = document.createElement('template');
     t.innerHTML = html;
@@ -53,8 +54,10 @@ function makeScrolableShop(){
 	//get products
 	//check page number in pagination
 	let currentPage = 1;
+		//Pagination__Nav
 	var paginationNav = document.getElementsByClassName("Pagination__Nav")[0];
-	paginationNav.style.display = "none";
+	if(paginationNav != null){
+		paginationNav.style.display = "none";
 	
 	let pageSize = parseInt(paginationNav.lastChild.previousSibling.innerHTML);
 	
@@ -82,6 +85,7 @@ function makeScrolableShop(){
         	}
         }
 	});
+	}
 }  
 
 function replaceUrlParam(url, paramName, paramValue)
@@ -120,6 +124,7 @@ function addMoreProductsToGrid(urlCollection){
 
 			productsGrid.appendChild(product.cloneNode(true));
 		}
+
 	});
 }
 
@@ -133,11 +138,13 @@ var observer = new MutationObserver(mutationRecords => {
   if(document.getElementsByClassName("Cart__Empty Heading u-h5")[0] == null)
   {
   	console.log("--- CART IS FULL",offerProduct);
-  	offerProduct.style.display = "none";
+  	if(offerProduct != null)
+  		offerProduct.style.display = "none";
   }else
   {
   	console.log("--- CART IS EMPTY ",offerProduct);
-  	offerProduct.style.display = "block";
+  	if(offerProduct != null)
+  		offerProduct.style.display = "block";
   }
 });
 
@@ -225,12 +232,12 @@ var mostPopularFragment = createFragment(`
 contentDrawer.insertBefore(mostPopularFragment, contentDrawer.childNodes[2])
 
 //populate variants for offer product
+
 var selectVariant = document.getElementById('select-most-popular');
-popular.variants.forEach((variant) =>  {  		
+popular.variants.forEach((variant) =>  {
 var opt = document.createElement('option');
 opt.value = variant.id;
-opt.innerHTML = variant.title;   			
-    			
+opt.innerHTML = variant.title;
 selectVariant.appendChild(opt);
 });
 
@@ -261,7 +268,8 @@ qtyMinus.addEventListener("click",()=>{
     qtyShow.value = counter;
     qtyProduct.value = counter; 
 });
-})	
+})
+	
 }
 
 const getPopularProduct = (url) => {
@@ -288,3 +296,6 @@ function createFragment(htmlStr) {
     }
     return frag;
 }
+
+
+
