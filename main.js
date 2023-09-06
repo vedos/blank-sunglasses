@@ -8,71 +8,61 @@ const apiPopular = "https://blank-sunglasses.com/products/john.js";
 
 //Code goes in DOM fully loaded
 document.addEventListener("readystatechange", (event) => {
-console.log("%cDOM fully loaded and parsed",  'color: blue');
- if (event.target.readyState === "complete") {
-    initApp();
-  }
+    console.log("%cDOM fully loaded and parsed", 'color: blue');
+    if (event.target.readyState === "complete") {
+        initApp();
+    }
 });
 
-function initApp(){
-	setOfferProduct();
-	makeScrolableShop();
+function initApp() {
+    setOfferProduct();
+    makeScrolableShop();
 }
 
-function makeScrolableShop(){
-	//get products
-	//check page number in pagination
-	let currentPage = 2;
-	console.log("currentPage reseted", currentPage);
-	
-	var paginationNav = document.getElementsByClassName("Pagination__Nav")[0];
-	if(paginationNav != null){
-		paginationNav.style.display = "none";
-	
-	let pageSize = parseInt(paginationNav.lastChild.previousSibling.innerHTML);
-		
+function makeScrolableShop() {
+    //get products
+    //check page number in pagination
+    let currentPage = 2;
+    var paginationNav = document.getElementsByClassName("Pagination__Nav")[0];
+    if (paginationNav != null) {
+        paginationNav.style.display = "none";
 
+        let pageSize = parseInt(paginationNav.lastChild.previousSibling.innerHTML);
 
-	//sort changed
-	var sort = document.getElementsByClassName("Popover__ValueList")[1];
-	sort.childNodes.forEach((button) => {
-			button.addEventListener('click', function(){
-				currentPage = 2;
-				console.log("sort clicked")
-			})	
-	});
-	
-	//dynamically adding url for new products 
-		
-	var collectionInnnerScroll = document.getElementsByClassName("CollectionInner__Products")[0];
-	document.addEventListener('scroll', function (event) {
-		throttle(() => {
-		//scroll after past half products
-		console.log(currentPage, window.scrollY,collectionInnnerScroll.offsetHeight, document.body.offsetHeight, window.innerHeight , window.pageYOffset )
-		//remove pagination        				
-		var paginationNav2 = document.getElementsByClassName("Pagination__Nav")[0];
-        paginationNav2.style.display = "none";
+        //sort changed
+        var sort = document.getElementsByClassName("Popover__ValueList")[1];
+        sort.childNodes.forEach((button) => {
+            button.addEventListener('click', function() {
+                currentPage = 2;
+            })
+        });
 
-		if(window.scrollY  >= collectionInnnerScroll.offsetHeight/2)
-		{
-        	//call more products
-        	if(currentPage <= pageSize){
-        		let urlNew = paginationNav2.firstChild.nextSibling.href;
-				
-        		//dynamically adding url for new products 
-				urlNew = replaceUrlParam(urlNew, "page", currentPage);
-				
-        		console.log("scroll bottom", currentPage, pageSize,urlNew);
-				addMoreProductsToGrid(urlNew);
-			
-				currentPage++;
-        	}
-        }
-	}, 1000);
-	});
-	}
+        var collectionInnnerScroll = document.getElementsByClassName("CollectionInner__Products")[0];
+        document.addEventListener('scroll', function(event) {
+            throttle(() => {
+                //remove pagination        				
+                var paginationNav2 = document.getElementsByClassName("Pagination__Nav")[0];
+                paginationNav2.style.display = "none";
+
+                //scroll after past half products
+                if (window.scrollY >= collectionInnnerScroll.offsetHeight / 2) {
+                    //call more products
+                    if (currentPage <= pageSize) {
+                        //dynamically adding url for new products 
+                        let urlNew = paginationNav2.firstChild.nextSibling.href;
+
+                        //dynamically adding url for new products 
+                        urlNew = replaceUrlParam(urlNew, "page", currentPage);
+
+                        console.log("scroll bottom", currentPage, pageSize, urlNew);
+                        addMoreProductsToGrid(urlNew);
+                        currentPage++;
+                    }
+                }
+            }, 1000);
+        });
+    }
 }
-
 
 function parseHTML(html) {
     var t = document.createElement('template');
@@ -82,103 +72,93 @@ function parseHTML(html) {
 
 var throttleTimer;
 const throttle = (callback, time) => {
-  if (throttleTimer) return;
-  throttleTimer = true;
-  setTimeout(() => {
-    callback();
-    throttleTimer = false;
-  }, time);
+    if (throttleTimer) return;
+    throttleTimer = true;
+    setTimeout(() => {
+        callback();
+        throttleTimer = false;
+    }, time);
 };
 
-function replaceUrlParam(url, paramName, paramValue)
-{
+function replaceUrlParam(url, paramName, paramValue) {
     if (paramValue == null) {
         paramValue = '';
     }
-    var pattern = new RegExp('\\b('+paramName+'=).*?(&|#|$)');
-    if (url.search(pattern)>=0) {
-        return url.replace(pattern,'$1' + paramValue + '$2');
+    var pattern = new RegExp('\\b(' + paramName + '=).*?(&|#|$)');
+    if (url.search(pattern) >= 0) {
+        return url.replace(pattern, '$1' + paramValue + '$2');
     }
-    url = url.replace(/[?#]$/,'');
-    return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
+    url = url.replace(/[?#]$/, '');
+    return url + (url.indexOf('?') > 0 ? '&' : '?') + paramName + '=' + paramValue;
 }
 
-const loadMoreProducts = (url) =>
-{
-	return new Promise((resolve, reject) => {
-    const httpReq = new XMLHttpRequest();
-    httpReq.open("GET", url, true);
-    httpReq.onreadystatechange = () => {
-      if (httpReq.readyState === 4) {
-        httpReq.status === 200
-          ? resolve(httpReq.responseText)
-          : reject(new Error("Error " + url));
-      }
-    };
-    httpReq.send();
-  });
+const loadMoreProducts = (url) => {
+    return new Promise((resolve, reject) => {
+        const httpReq = new XMLHttpRequest();
+        httpReq.open("GET", url, true);
+        httpReq.onreadystatechange = () => {
+            if (httpReq.readyState === 4) {
+                httpReq.status === 200 ?
+                    resolve(httpReq.responseText) :
+                    reject(new Error("Error " + url));
+            }
+        };
+        httpReq.send();
+    });
 }
 
-function addMoreProductsToGrid(urlCollection){
-	
-	loadMoreProducts(urlCollection)
-	.then((moreProducts) =>
-	{
-		//extract products from page
-		var fromPos = moreProducts.indexOf('<div class="ProductList ProductList--grid ProductList--removeMargin Grid" data-mobile-count="2" data-desktop-count="4">');
-		var toPos = moreProducts.indexOf('<div class="Pagination  Text--subdued">');
-		var productListHtml = moreProducts.substring(fromPos+119, toPos-19); //+119
-		
-		const parser = new DOMParser(),
-		dom = parser.parseFromString(productListHtml, "text/html");
-		
-		var productsGrid = document.getElementsByClassName("ProductList ProductList--grid ProductList--removeMargin Grid")[0];
-		productsGrid.removeAttribute('data-desktop-count');
-		
-		for(let i = 0;i<dom.body.childNodes.length;i++){
-			let product = dom.body.childNodes[i];
-			
-			product.firstChild.style = "visibility: inherit; opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0)";
+function addMoreProductsToGrid(urlCollection) {
+    loadMoreProducts(urlCollection)
+        .then((moreProducts) => {
+            //extract products from page
+            var fromPos = moreProducts.indexOf('<div class="ProductList ProductList--grid ProductList--removeMargin Grid" data-mobile-count="2" data-desktop-count="4">');
+            var toPos = moreProducts.indexOf('<div class="Pagination  Text--subdued">');
+            var productListHtml = moreProducts.substring(fromPos + 119, toPos - 19); //+119
 
-			productsGrid.appendChild(product.cloneNode(true));
-		}
+            const parser = new DOMParser(),
+                dom = parser.parseFromString(productListHtml, "text/html");
 
-	});
+            var productsGrid = document.getElementsByClassName("ProductList ProductList--grid ProductList--removeMargin Grid")[0];
+            productsGrid.removeAttribute('data-desktop-count');
+
+            for (let i = 0; i < dom.body.childNodes.length; i++) {
+                let product = dom.body.childNodes[i];
+                product.firstChild.style = "visibility: inherit; opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0)";
+                productsGrid.appendChild(product.cloneNode(true));
+            }
+        });
 }
 
-function setOfferProduct(){
-// Select the node that will be observed for mutations
-var targetNode = document.getElementById("sidebar-cart");
+function setOfferProduct() {
+    // Select the node that will be observed for mutations
+    var targetNode = document.getElementById("sidebar-cart");
 
-var observer = new MutationObserver(mutationRecords => {
-  var offerProduct = document.getElementById("most-popular-product-offer");
-  
-  if(document.getElementsByClassName("Cart__Empty Heading u-h5")[0] == null)
-  {
-  	console.log("--- CART IS FULL",offerProduct);
-  	if(offerProduct != null)
-  		offerProduct.style.display = "none";
-  }else
-  {
-  	console.log("--- CART IS EMPTY ",offerProduct);
-  	if(offerProduct != null)
-  		offerProduct.style.display = "block";
-  }
-});
+    var observer = new MutationObserver(mutationRecords => {
+        var offerProduct = document.getElementById("most-popular-product-offer");
 
-// observe everything except attributes
-observer.observe(targetNode, {
-	childList: true, // observe direct children
-	subtree: true, // and lower descendants too
-	characterDataOldValue: true // pass old data to callback
-});
+        if (document.getElementsByClassName("Cart__Empty Heading u-h5")[0] == null) {
+            console.log("--- CART IS FULL", offerProduct);
+            if (offerProduct != null)
+                offerProduct.style.display = "none";
+        } else {
+            console.log("--- CART IS EMPTY ", offerProduct);
+            if (offerProduct != null)
+                offerProduct.style.display = "block";
+        }
+    });
+
+    // observe everything except attributes
+    observer.observe(targetNode, {
+        childList: true, // observe direct children
+        subtree: true, // and lower descendants too
+        characterDataOldValue: true // pass old data to callback
+    });
 
 
-getPopularProduct(apiPopular)
-  .then((popular) => {
-var contentDrawer =  document.getElementsByClassName("Drawer Drawer--fromRight")[0];
-
-var mostPopularFragment = createFragment(`
+    getPopularProduct(apiPopular)
+        .then((popular) => {
+            var contentDrawer = document.getElementsByClassName("Drawer Drawer--fromRight")[0];
+            var mostPopularFragment = createFragment(`
 <div id="most-popular-product-offer" class="MostPopular_ProductOffer">
 <div class="Drawer__Content" style="height: 200px;">
     <div class="Drawer__Container">
@@ -246,63 +226,62 @@ var mostPopularFragment = createFragment(`
 </div>
 </div>
 `);
-    
-contentDrawer.insertBefore(mostPopularFragment, contentDrawer.childNodes[2])
 
-//populate variants for offer product
+            contentDrawer.insertBefore(mostPopularFragment, contentDrawer.childNodes[2])
 
-var selectVariant = document.getElementById('select-most-popular');
-popular.variants.forEach((variant) =>  {
-var opt = document.createElement('option');
-opt.value = variant.id;
-opt.innerHTML = variant.title;
-selectVariant.appendChild(opt);
-});
+            //populate variants for offer product
 
-selectVariant.addEventListener("click", function() {
-	var val = selectVariant.options[selectVariant.selectedIndex].value;
-	var variantImg =  popular.variants.find(x => x.id.toString() === val).featured_image.src;
-	document.getElementById("most-popular-img").src = variantImg;
-});
+            var selectVariant = document.getElementById('select-most-popular');
+            popular.variants.forEach((variant) => {
+                var opt = document.createElement('option');
+                opt.value = variant.id;
+                opt.innerHTML = variant.title;
+                selectVariant.appendChild(opt);
+            });
+
+            selectVariant.addEventListener("click", function() {
+                var val = selectVariant.options[selectVariant.selectedIndex].value;
+                var variantImg = popular.variants.find(x => x.id.toString() === val).featured_image.src;
+                document.getElementById("most-popular-img").src = variantImg;
+            });
 
 
-//set quantiy 
-let counter = 1;
-let qtyShow = document.getElementById('qty_popular_show');
-let qtyMinus = document.getElementById('qty_popular_minus');
-let qtyPlus = document.getElementById('qty_popular_plus');
-let qtyProduct = document.getElementById('qty_product'); 
-qtyShow.value = counter;
+            //set quantiy 
+            let counter = 1;
+            let qtyShow = document.getElementById('qty_popular_show');
+            let qtyMinus = document.getElementById('qty_popular_minus');
+            let qtyPlus = document.getElementById('qty_popular_plus');
+            let qtyProduct = document.getElementById('qty_product');
+            qtyShow.value = counter;
 
-qtyPlus.addEventListener("click",()=>{
-    counter++;
-    qtyShow.value = counter;
-    qtyProduct.value = counter; 
-});
-qtyMinus.addEventListener("click",()=>{
-	if(counter > 1){
-    	counter--;
-	}
-    qtyShow.value = counter;
-    qtyProduct.value = counter; 
-});
-})
-	
+            qtyPlus.addEventListener("click", () => {
+                counter++;
+                qtyShow.value = counter;
+                qtyProduct.value = counter;
+            });
+            qtyMinus.addEventListener("click", () => {
+                if (counter > 1) {
+                    counter--;
+                }
+                qtyShow.value = counter;
+                qtyProduct.value = counter;
+            });
+        })
 }
 
 const getPopularProduct = (url) => {
-  return new Promise((resolve, reject) => {
-    const httpReq = new XMLHttpRequest();
-    httpReq.open("GET", url, true);
-    httpReq.onreadystatechange = () => {
-      if (httpReq.readyState === 4) {
-        httpReq.status === 200
-          ? resolve(JSON.parse(httpReq.responseText))
-          : reject(new Error("Error " + url));
-      }
-    };
-    httpReq.send();
-  });
+    return new Promise((resolve, reject) => {
+        const httpReq = new XMLHttpRequest();
+        httpReq.open("GET", url, true);
+        httpReq.onreadystatechange = () => {
+            if (httpReq.readyState === 4) {
+                httpReq.status === 200 ?
+                    resolve(JSON.parse(httpReq.responseText)) :
+                    reject(new Error("Error " + url));
+            }
+        };
+        httpReq.send();
+    });
 };
 
 function createFragment(htmlStr) {
